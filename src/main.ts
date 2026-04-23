@@ -11,11 +11,15 @@ async function bootstrap() {
     helmet({
       contentSecurityPolicy: process.env.NODE_ENV === 'production',
       crossOriginEmbedderPolicy: false,
+      crossOriginResourcePolicy: false,
     }),
   );
 
   app.enableCors({
-    origin: process.env.ALLOWED_ORIGINS?.split(',') ?? ['http://localhost:3000'],
+    origin: process.env.ALLOWED_ORIGINS?.split(',') ?? [
+      'http://localhost:3000',
+      'http://localhost:5173',
+    ],
     credentials: true,
   });
 
