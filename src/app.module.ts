@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GraphQLModule } from '@nestjs/graphql';
@@ -7,6 +8,10 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { join } from 'path';
 import { HealthModule } from './health/health.module';
 import { PingResolver } from './ping.resolver';
+import { RedisModule } from './redis/redis.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
+import { GqlThrottlerGuard } from './common/guards/gql-throttler.guard';
 
 @Module({
   imports: [
@@ -19,8 +24,8 @@ import { PingResolver } from './ping.resolver';
         url: process.env.DATABASE_URL,
         entities: [join(__dirname, '**', '*.entity.{ts,js}')],
         migrations: [join(__dirname, 'migrations', '*{.ts,.js}')],
-        migrationsRun: false,
-        synchronize: process.env.NODE_ENV === 'development',
+        migrationsRun: process.env.NODE_ENV !== 'production',
+        synchronize: false,
         logging: process.env.NODE_ENV === 'development',
       }),
     }),
@@ -41,8 +46,14 @@ import { PingResolver } from './ping.resolver';
         limit: 10,
       },
     ]),
+    RedisModule,
+    AuthModule,
+    UsersModule,
     HealthModule,
   ],
-  providers: [PingResolver],
+  providers: [
+    PingResolver,
+    { provide: APP_GUARD, useClass: GqlThrottlerGuard },
+  ],
 })
 export class AppModule {}
