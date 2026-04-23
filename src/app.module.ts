@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { join } from 'path';
 import { HealthModule } from './health/health.module';
 import { PingResolver } from './ping.resolver';
@@ -20,7 +21,7 @@ import { PingResolver } from './ping.resolver';
         entities: [join(__dirname, '**', '*.entity.{ts,js}')],
         migrations: [join(__dirname, 'migrations', '*{.ts,.js}')],
         migrationsRun: false,
-        synchronize: process.env.NODE_ENV === 'development',
+        synchronize: false,
         logging: process.env.NODE_ENV === 'development',
       }),
     }),
@@ -28,7 +29,7 @@ import { PingResolver } from './ping.resolver';
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       sortSchema: true,
-      playground: process.env.NODE_ENV !== 'production',
+      graphiql: process.env.NODE_ENV !== 'production',
       subscriptions: {
         'graphql-ws': {
           path: '/graphql',
@@ -43,6 +44,9 @@ import { PingResolver } from './ping.resolver';
     ]),
     HealthModule,
   ],
-  providers: [PingResolver],
+  providers: [
+    PingResolver,
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+  ],
 })
 export class AppModule {}
