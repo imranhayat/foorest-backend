@@ -39,7 +39,7 @@ export class AuthResolver {
   async sendOtp(
     @Args('input') input: SendOtpInput,
   ): Promise<SendOtpResponse> {
-    const result = await this.otpService.sendOtp(input.phone);
+    const result = await this.otpService.sendOtp(input.phoneNumber);
     return { success: true, devOtpCode: result.devOtpCode };
   }
 
@@ -47,11 +47,11 @@ export class AuthResolver {
   async verifyOtp(
     @Args('input') input: VerifyOtpInput,
   ): Promise<AuthResponse> {
-    const valid = await this.otpService.verifyOtp(input.phone, input.code);
+    const valid = await this.otpService.verifyOtp(input.phoneNumber, input.code);
     if (!valid) {
       throw new UnauthorizedException('Invalid or expired OTP');
     }
-    const user = await this.usersService.findOrCreate(input.phone);
+    const user = await this.usersService.findOrCreate(input.phoneNumber);
     const tokens = await this.authService.generateTokens(user);
     return { ...tokens, user: toUserType(user) };
   }

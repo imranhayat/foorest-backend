@@ -5,7 +5,7 @@ import { IsPhoneNumber, Length } from 'class-validator';
 export class VerifyOtpInput {
   @Field()
   @IsPhoneNumber()
-  phone: string;
+  phoneNumber: string;
 
   @Field()
   @Length(6, 6)

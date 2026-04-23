@@ -5,5 +5,5 @@ import { IsPhoneNumber } from 'class-validator';
 export class SendOtpInput {
   @Field()
   @IsPhoneNumber()
-  phone: string;
+  phoneNumber: string;
 }
