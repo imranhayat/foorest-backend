@@ -34,6 +34,7 @@ import { GqlThrottlerGuard } from './common/guards/gql-throttler.guard';
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       sortSchema: true,
       playground: process.env.NODE_ENV !== 'production',
+      context: ({ req, res }: { req: unknown; res: unknown }) => ({ req, res }),
       subscriptions: {
         'graphql-ws': {
           path: '/graphql',
